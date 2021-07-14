@@ -43,7 +43,7 @@ case ${BUILD_TYPE} in
       -Dorg.gradle.daemon=false \
       -Dorg.gradle.parallel=false \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assemble test verifySemanticVersioning || fatal "could not build"
+      bundle test verifySemanticVersioning || fatal "could not build"
     ;;
 
   pull-request)
@@ -53,6 +53,6 @@ case ${BUILD_TYPE} in
       -Dorg.gradle.daemon=false \
       -Dorg.gradle.parallel=false \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assemble test verifySemanticVersioning || fatal "could not build"
+      bundle test verifySemanticVersioning || fatal "could not build"
     ;;
 esac
