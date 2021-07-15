@@ -47,22 +47,22 @@ START_DIRECTORY=$(pwd) ||
 cd "${PROJECT}" ||
   fatal "could not switch to project directory"
 
-CI_FIREBASE_APK=$(head -n 1 "firebase-apk.conf") ||
+CI_FIREBASE_BUNDLE=$(head -n 1 "firebase-bundle.conf") ||
   fatal "could not read firebase-apk.conf"
 CI_FIREBASE_APP_ID=$(head -n 1 "firebase-app-id.conf") ||
   fatal "could not read firebase-app-id.conf"
 CI_FIREBASE_GROUPS=$(head -n 1 "firebase-groups.conf") ||
   fatal "could not read firebase-groups.conf"
-CI_FIREBASE_APK=$(realpath "${CI_FIREBASE_APK}") ||
+CI_FIREBASE_BUNDLE=$(realpath "${CI_FIREBASE_BUNDLE}") ||
   fatal "could not resolve APK"
 
-info "firebase: APK:    ${CI_FIREBASE_APK}"
+info "firebase: bundle: ${CI_FIREBASE_BUNDLE}"
 info "firebase: app:    ${CI_FIREBASE_APP_ID}"
 info "firebase: groups: ${CI_FIREBASE_GROUPS}"
 
-CI_FIREBASE_APK_SIZE=$(wc -c "${CI_FIREBASE_APK}" | cut -d' ' -f1) ||
-  fatal "could not determine APK size"
-if [ "${CI_FIREBASE_APK_SIZE}" == "0" ]
+CI_FIREBASE_BUNDLE_SIZE=$(wc -c "${CI_FIREBASE_BUNDLE}" | cut -d' ' -f1) ||
+  fatal "could not determine app bundle size"
+if [ "${CI_FIREBASE_BUNDLE_SIZE}" == "0" ]
 then
   fatal "attempted to submit a zero-size APK file"
 fi
@@ -75,4 +75,4 @@ exec "${CI_FIREBASE}" appdistribution:distribute \
   --release-notes-file changes.txt \
   --app "${CI_FIREBASE_APP_ID}" \
   --groups "${CI_FIREBASE_GROUPS}" \
-  "${CI_FIREBASE_APK}"
+  "${CI_FIREBASE_BUNDLE}"
