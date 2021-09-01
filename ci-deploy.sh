@@ -13,6 +13,14 @@ fatal()
   exit 1
 }
 
+FAILED=0
+
+error()
+{
+  echo "ci-deploy.sh: error: $1" 1>&2
+  FAILED=1
+}
+
 info()
 {
   echo "ci-deploy.sh: info: $1" 1>&2
@@ -51,29 +59,29 @@ case ${VERSION_TYPE} in
     ;;
   snapshot)
     ci-deploy-central-snapshot.sh "${VERSION_NAME}" ||
-      fatal "could not deploy snapshot"
+      error "could not deploy snapshot"
     ci-deploy-git-binaries.sh ||
-      fatal "could not deploy git binaries"
+      error "could not deploy git binaries"
     ;;
   tag)
     ci-deploy-central-release.sh "${VERSION_NAME}" ||
-      fatal "could not deploy release"
+      error "could not deploy release"
     ci-deploy-git-binaries.sh ||
-      fatal "could not deploy git binaries"
+      error "could not deploy git binaries"
+    ci-deploy-fastlane-conditionally.sh ||
+      error "could not deploy to Fastlane"
     ;;
 esac
 
+ci-deploy-firebase-conditionally.sh "${FIREBASE_APPLICATIONS}" ||
+  error "could not deploy Firebase builds"
+
 #------------------------------------------------------------------------
-# Run Firebase if configured.
-#
+# Check if any of the above failed, and give up if they did.
 
-if [ -f ".ci-local/deploy-firebase-apps.conf" ]
+if [ ${FAILED} -eq 1 ]
 then
-  FIREBASE_APPLICATIONS=$(egrep -v '^#' ".ci-local/deploy-firebase-apps.conf") ||
-    fatal "could not list firebase applications"
-
-  ci-deploy-firebase.sh "${FIREBASE_APPLICATIONS}" ||
-    fatal "could not deploy firebase builds"
+  fatal "one or more deployment steps failed"
 fi
 
 #------------------------------------------------------------------------
