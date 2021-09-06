@@ -24,6 +24,8 @@ Android modules.
 
 * Automatic deployment of application binaries to a git repository.
 * Automatic deployment of snapshots and releases to [Maven Central](https://search.maven.org/).
+* Automatic deployment of Android applications to [Firebase](https://firebase.google.com/).
+* Automatic deployment of Android releases to the [Play Store](https://play.google.com/).
 * Build pull requests safely without access to secrets.
 * Zero-configuration in the common case; add a git submodule and go!
 
@@ -169,6 +171,12 @@ a `normal` build. Executing a `pull-request` build does not require any particul
 These values should be stored in GitHub Actions _secrets_ and passed in as shown in the
 example workflows above.
 
+### Maven Central Publishing
+
+The CI scripts can be optionally configured to publish APK files to a Git repository. If
+the file `.ci-local/deploy-maven-central.conf` exists, the CI scripts will attempt to
+publish all produced artifacts to Maven Central.
+
 ### APK Git Publishing
 
 The CI scripts can be optionally configured to publish APK files to a Git repository. If
@@ -213,10 +221,20 @@ must contain the following files:
 
 |File|Description|
 |----|-----------|
-|`firebase-aab.conf`|The name of the APK file to be deployed (such as `org.librarysimplified.testing.app/build/outputs/apk/release/org.librarysimplified.testing.app-release-unsigned.aab`)|
+|`firebase-aab.conf`|The name of the AAB file to be deployed (such as `org.librarysimplified.testing.app/build/outputs/aab/release/org.librarysimplified.testing.app-release-unsigned.aab`)|
 |`firebase-apk.conf`|The name of the APK file to be deployed (such as `org.librarysimplified.testing.app/build/outputs/apk/release/org.librarysimplified.testing.app-release-unsigned.apk`)|
 |`firebase-app-id.conf`|The application ID to be deployed (such as `1:1076330259269:android:8cb4dc8d0e14bc32d3d42c`)|
 |`firebase-groups.conf`|The name(s) of the testing group(s) to notify (such as `beta-testers`)|
+
+### Fastlane Publishing
+
+If the file `.ci-local/deploy-fastlane-apps.conf` exists, each line of the file that does
+not begin with a '#' character is interpreted as the name of a Gradle submodule that contains
+an application to be deployed using [Fastlane](https://fastlane.tools/).
+
+|File|Description|
+|----|-----------|
+|    |           |
 
 ### Deploy Hook
 
