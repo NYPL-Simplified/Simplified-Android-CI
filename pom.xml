@@ -125,6 +125,8 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <Main-Class>org.librarysimplified.ci.Main</Main-Class>
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                    <Implementation-Title>${project.artifactId}</Implementation-Title>
                   </manifestEntries>
                 </transformer>
               </transformers>
@@ -151,6 +153,7 @@
                 <include>${project.artifactId}-${project.version}.*\.jar</include>
               </includes>
               <manifestAttributes>
+                <manifestAttribute>Archiver-Version</manifestAttribute>
                 <manifestAttribute>Build-Jdk-Spec</manifestAttribute>
               </manifestAttributes>
             </configuration>
