@@ -1,0 +1,9 @@
+[versions]
+xy = "1.0.0"
+yz = "1.0.0"
+ab = "1.0.0"
+
+[libraries]
+xy = { module = "x:y", version.ref = "xy" }
+yz = { module = "y:z", version.ref = "yz" }
+ab = { module = "a:b", version.ref = "ab" }
