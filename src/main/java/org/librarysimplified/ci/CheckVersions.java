@@ -4,6 +4,7 @@ import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyException;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.tomlj.Toml;
 
 import java.io.IOException;
@@ -124,7 +125,7 @@ public final class CheckVersions
         AsciiTable.getTable(failed, Arrays.asList(
           new Column().header("Group").with(s -> s.library().group()),
           new Column().header("Artifact").with(s -> s.library().artifact()),
-          new Column().header("Version").with(s -> s.library().version()),
+          new Column().header("Version").with(s -> s.library().version().toString()),
           new Column().header("Message").with(CheckVersionLibraryStatusType::message)
         ));
       System.out.println(table);
@@ -198,10 +199,10 @@ public final class CheckVersions
         new CheckVersionLibrary(
           group,
           artifact,
-          version,
+          new DefaultArtifactVersion(version),
           checkRepositories,
           shouldIgnore
-      ));
+        ));
     }
 
     if (!namesLeftOver.isEmpty()) {

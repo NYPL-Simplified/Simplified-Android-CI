@@ -5,7 +5,7 @@
 
   <groupId>org.librarysimplified.ci</groupId>
   <artifactId>org.librarysimplified.ci</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>CI Tools</description>
 
   <properties>
@@ -34,6 +34,12 @@
       <artifactId>ascii-table</artifactId>
       <version>1.2.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <version>3.8.2</version>
+    </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>

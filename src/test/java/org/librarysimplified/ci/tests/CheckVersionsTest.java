@@ -1,5 +1,6 @@
 package org.librarysimplified.ci.tests;
 
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.librarysimplified.ci.tests.TestDirectories.resourceBytesOf;
 import static org.librarysimplified.ci.tests.TestDirectories.resourceOf;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
@@ -465,8 +467,8 @@ public final class CheckVersionsTest
 
     this.server0
       .when(request().withPath("/x/y/maven-metadata.xml"))
-      .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
-        versionText));
+      .respond(response().withStatusCode(Integer.valueOf(200))
+                 .withBody(versionText));
 
     final var ex =
       assertThrows(ExitException.class, () -> {
@@ -638,5 +640,20 @@ public final class CheckVersionsTest
 
     this.server0.verify(request().withPath("/x/y/maven-metadata.xml"));
     this.server1.verify(request().withPath("/x/y/maven-metadata.xml"));
+  }
+
+  /**
+   * Versions have the expected comparison behaviour.
+   */
+
+  @Test
+  public void testVersionsCompare()
+  {
+    final var v0 =
+      new DefaultArtifactVersion("1.0.0");
+    final var v1 =
+      new DefaultArtifactVersion("1.0.0-SNAPSHOT");
+
+    assertTrue(v0.compareTo(v1) > 0);
   }
 }

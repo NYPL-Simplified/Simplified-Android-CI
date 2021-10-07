@@ -1,5 +1,6 @@
 package org.librarysimplified.ci;
 
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,16 +24,16 @@ public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary
 {
   private final String group;
   private final String artifact;
-  private final String version;
+  private final DefaultArtifactVersion version;
   private final Set<String> checkRepositories;
   private final boolean ignore;
 
   CheckVersionLibrary(
     final String inGroup,
     final String inArtifact,
-    final String inVersion,
+    final DefaultArtifactVersion inVersion,
     final Set<String> inCheckRepositories,
-    final boolean ignore)
+    final boolean inIgnore)
   {
     this.group =
       Objects.requireNonNull(inGroup, "group");
@@ -42,7 +43,7 @@ public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary
       Objects.requireNonNull(inVersion, "version");
     this.checkRepositories =
       Objects.requireNonNull(inCheckRepositories, "checkRepositories");
-    this.ignore = ignore;
+    this.ignore = inIgnore;
   }
 
   public boolean isIgnored()
@@ -60,7 +61,7 @@ public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary
     return this.artifact;
   }
 
-  public String version()
+  public DefaultArtifactVersion version()
   {
     return this.version;
   }
@@ -141,12 +142,24 @@ public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary
       final var document =
         documentBuilder.parse(stream);
 
-      final var availableVersion =
+      final var availableVersionText =
         expression.evaluate(document);
 
-      if (!Objects.equals(availableVersion, this.version)) {
+      if (availableVersionText == null || availableVersionText.isBlank()) {
+        throw new IOException(
+          String.format(
+            "Received unparseable version number '%s' from server",
+            availableVersionText)
+        );
+      }
+
+      final var availableVersion =
+        new DefaultArtifactVersion(availableVersionText);
+
+      if (availableVersion.compareTo(this.version) > 0) {
         return new CheckVersionLibraryStatusOutOfDate(this, availableVersion);
       }
+
       return new CheckVersionLibraryStatusUpToDate(this);
     } catch (ParserConfigurationException | SAXException | XPathExpressionException e) {
       throw new IOException(e);

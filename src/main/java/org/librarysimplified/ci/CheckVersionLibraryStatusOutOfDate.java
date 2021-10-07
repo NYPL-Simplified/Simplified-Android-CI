@@ -1,16 +1,18 @@
 package org.librarysimplified.ci;
 
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+
 import java.util.Objects;
 
 public final class CheckVersionLibraryStatusOutOfDate
   implements CheckVersionLibraryStatusType
 {
   private final CheckVersionLibrary library;
-  private final String availableVersion;
+  private final DefaultArtifactVersion availableVersion;
 
   public CheckVersionLibraryStatusOutOfDate(
     final CheckVersionLibrary library,
-    final String availableVersion)
+    final DefaultArtifactVersion availableVersion)
   {
     this.library =
       Objects.requireNonNull(library, "library");
