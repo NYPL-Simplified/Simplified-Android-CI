@@ -125,7 +125,9 @@ public final class CheckVersions
     final Path versionCatalogPath)
   {
     if (!versionCatalogPath.isAbsolute()) {
-      return configPath.resolve(versionCatalogPath).toAbsolutePath();
+      return configPath.getParent()
+        .resolve(versionCatalogPath)
+        .toAbsolutePath();
     }
     return versionCatalogPath;
   }
