@@ -43,16 +43,25 @@ public final class CheckVersions
     }
 
     final var config = new Properties();
-    try (var stream = Files.newInputStream(Paths.get(args[0]))) {
+    final var configPath = Paths.get(args[0]).toAbsolutePath();
+    try (var stream = Files.newInputStream(configPath)) {
       config.load(stream);
     }
 
-    final var versionCatalogPath =
+    var versionCatalogPath =
       Paths.get(JProperties.getString(config, "versionCatalogFile"));
-    final var libraryListFile =
+    versionCatalogPath =
+      resolveAgainstConfigPath(configPath, versionCatalogPath);
+
+    var libraryListFile =
       Paths.get(JProperties.getString(config, "libraryListFile"));
-    final var libraryRepositoryFile =
+    libraryListFile =
+      resolveAgainstConfigPath(configPath, libraryListFile);
+
+    var libraryRepositoryFile =
       Paths.get(JProperties.getString(config, "libraryRepositoryFile"));
+    libraryRepositoryFile =
+      resolveAgainstConfigPath(configPath, libraryRepositoryFile);
 
     final Set<String> checkLibraries;
     try (var stream = Files.lines(libraryListFile)) {
@@ -109,6 +118,16 @@ public final class CheckVersions
         "At least one library is out-of-date or failed the check in some manner.");
       throw new ExitException(1);
     }
+  }
+
+  private static Path resolveAgainstConfigPath(
+    final Path configPath,
+    final Path versionCatalogPath)
+  {
+    if (!versionCatalogPath.isAbsolute()) {
+      return configPath.resolve(versionCatalogPath).toAbsolutePath();
+    }
+    return versionCatalogPath;
   }
 
   private static boolean displayResults(
