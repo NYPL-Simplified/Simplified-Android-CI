@@ -2,8 +2,13 @@
 .idea
 README-CHANGES.xml
 brooklime.jar
+build_libraries.toml
 changelog.jar
 changes.txt
+check-libraries.txt
+check-repositories.txt
+checkVersion.properties
+commit.txt
 hello.txt
 hello.txt.asc
 node_modules
