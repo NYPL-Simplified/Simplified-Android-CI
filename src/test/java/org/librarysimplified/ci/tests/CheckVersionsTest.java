@@ -75,6 +75,43 @@ public final class CheckVersionsTest
   }
 
   /**
+   * The command-line tool fails if no configuration file is provided.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testMissingConfiguration0()
+    throws Exception
+  {
+    assertThrows(ExitException.class, () -> {
+      CheckVersions.main(new String[]{
+
+      });
+    });
+  }
+
+  /**
+   * The command-line tool fails if a nonexistent formatter is provided.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testMissingFormatter0()
+    throws Exception
+  {
+    assertThrows(ExitException.class, () -> {
+      CheckVersions.main(new String[]{
+        "--configuration",
+        this.configPath.toString(),
+        "--formatter",
+        "nonexistent"
+      });
+    });
+  }
+
+  /**
    * The command-line tool fails if important files are missing.
    *
    * @throws Exception On errors
@@ -85,7 +122,10 @@ public final class CheckVersionsTest
     throws Exception
   {
     assertThrows(NoSuchFileException.class, () -> {
-      CheckVersions.main(new String[]{this.configPath.toString()});
+      CheckVersions.main(new String[]{
+        "--configuration",
+        this.configPath.toString()
+      });
     });
   }
 
@@ -102,7 +142,10 @@ public final class CheckVersionsTest
     Files.writeString(this.libraryListPath, "");
 
     assertThrows(NoSuchFileException.class, () -> {
-      CheckVersions.main(new String[]{this.configPath.toString()});
+      CheckVersions.main(new String[]{
+        "--configuration",
+        this.configPath.toString()
+      });
     });
   }
 
@@ -123,7 +166,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
   }
@@ -143,7 +189,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
   }
@@ -169,7 +218,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
   }
@@ -195,7 +247,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
   }
@@ -225,7 +280,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -257,7 +315,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -286,7 +347,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
   }
@@ -324,7 +388,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -375,7 +442,69 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
+      });
+    assertEquals(1, ex.exitCode());
+
+    this.server0.verify(request().withPath("/x/y/maven-metadata.xml"));
+    this.server0.verify(request().withPath("/y/z/maven-metadata.xml"));
+    this.server0.verify(request().withPath("/a/b/maven-metadata.xml"));
+  }
+
+  /**
+   * Libraries that are out of date are marked as such, and the slack-formatted
+   * error message is OK.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testLibrariesOutOfDateSlack()
+    throws Exception
+  {
+    this.writeVersionsFile("moreVersions.toml");
+
+    Files.writeString(
+      this.libraryListPath,
+      "x:y\n" +
+        "y:z\n" +
+        "a:b\n");
+    Files.writeString(
+      this.libraryRepositoryListPath,
+      "http://127.0.0.1:10000/"
+    );
+
+    final var versionText =
+      resourceBytesOf(
+        CheckVersionsTest.class,
+        this.directory,
+        "basicVersionResponseTooOld.xml"
+      );
+
+    this.server0
+      .when(request().withPath("/x/y/maven-metadata.xml"))
+      .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
+        versionText));
+    this.server0
+      .when(request().withPath("/y/z/maven-metadata.xml"))
+      .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
+        versionText));
+    this.server0
+      .when(request().withPath("/a/b/maven-metadata.xml"))
+      .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
+        versionText));
+
+    final var ex =
+      assertThrows(ExitException.class, () -> {
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString(),
+          "--formatter",
+          "slack"
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -423,7 +552,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -472,7 +604,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -512,7 +647,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -556,7 +694,10 @@ public final class CheckVersionsTest
 
     final var ex =
       assertThrows(ExitException.class, () -> {
-        CheckVersions.main(new String[]{this.configPath.toString()});
+        CheckVersions.main(new String[]{
+          "--configuration",
+          this.configPath.toString()
+        });
       });
     assertEquals(1, ex.exitCode());
 
@@ -596,7 +737,53 @@ public final class CheckVersionsTest
       .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
         versionText));
 
-    CheckVersions.main(new String[]{this.configPath.toString()});
+    CheckVersions.main(new String[]{
+      "--configuration",
+      this.configPath.toString()
+    });
+
+    this.server0.verify(request().withPath("/x/y/maven-metadata.xml"));
+  }
+
+  /**
+   * A library is found if it exists on at least one of the repositories, and
+   * the Slack-formatted message is OK.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public void testLibraryOKSlack()
+    throws Exception
+  {
+    this.writeVersionsFile("basicVersion.toml");
+
+    Files.writeString(
+      this.libraryListPath, "x:y");
+    Files.writeString(
+      this.libraryRepositoryListPath,
+      "http://127.0.0.1:10000/\n" +
+        "http://127.0.0.1:10001/"
+    );
+
+    final var versionText =
+      resourceBytesOf(
+        CheckVersionsTest.class,
+        this.directory,
+        "basicVersionResponseOK.xml"
+      );
+
+    this.server0
+      .when(request().withPath("/x/y/maven-metadata.xml"))
+      .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
+        versionText));
+
+    CheckVersions.main(new String[]{
+      "--configuration",
+      this.configPath.toString(),
+      "--formatter",
+      "slack"
+    });
 
     this.server0.verify(request().withPath("/x/y/maven-metadata.xml"));
   }
@@ -636,7 +823,10 @@ public final class CheckVersionsTest
       .respond(response().withStatusCode(Integer.valueOf(200)).withBody(
         versionText));
 
-    CheckVersions.main(new String[]{this.configPath.toString()});
+    CheckVersions.main(new String[]{
+      "--configuration",
+      this.configPath.toString()
+    });
 
     this.server0.verify(request().withPath("/x/y/maven-metadata.xml"));
     this.server1.verify(request().withPath("/x/y/maven-metadata.xml"));

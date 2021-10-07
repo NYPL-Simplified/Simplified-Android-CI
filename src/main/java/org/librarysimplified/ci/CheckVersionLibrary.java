@@ -20,6 +20,10 @@ import java.util.Set;
 
 import static java.net.http.HttpResponse.BodyHandlers.ofInputStream;
 
+/**
+ * A library that can be checked against a repository.
+ */
+
 public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary>
 {
   private final String group;

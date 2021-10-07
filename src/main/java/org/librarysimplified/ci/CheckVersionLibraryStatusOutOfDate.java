@@ -36,7 +36,7 @@ public final class CheckVersionLibraryStatusOutOfDate
   public String message()
   {
     return String.format(
-      "ERROR: Out of date: Newer version %s is available",
+      "Out of date: Newer version %s is available",
       this.availableVersion);
   }
 }

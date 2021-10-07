@@ -1,7 +1,6 @@
 package org.librarysimplified.ci;
 
-import com.github.freva.asciitable.AsciiTable;
-import com.github.freva.asciitable.Column;
+import com.beust.jcommander.JCommander;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyException;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -13,20 +12,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static java.lang.System.err;
+import java.util.stream.Stream;
 
 public final class CheckVersions
 {
   private static final Logger LOG = Logger.getLogger("CheckVersions");
+
+  private static final Map<String, CheckVersionStatusFormatterType> FORMATTERS =
+    Stream.of(
+      new CheckVersionStatusPlainFormatter(),
+      new CheckVersionStatusSlackFormatter()
+    ).collect(Collectors.toMap(
+      CheckVersionStatusFormatterType::name,
+      Function.identity())
+    );
 
   private CheckVersions()
   {
@@ -37,13 +44,27 @@ public final class CheckVersions
     final String[] args)
     throws IOException, ExitException, JPropertyException
   {
-    if (args.length != 1) {
-      err.println("usage: checkVersion.properties");
+    final var parameters = new CheckVersionsParameters();
+
+    try {
+      JCommander.newBuilder()
+        .addObject(parameters)
+        .build()
+        .parse(args);
+    } catch (final Exception e) {
+      LOG.severe("Error parsing arguments: " + e.getMessage());
+      throw new ExitException(1);
+    }
+
+    final var formatter = FORMATTERS.get(parameters.formatterName);
+    if (formatter == null) {
+      LOG.severe("No formatter exists with the name '" + parameters.formatterName + "'");
+      LOG.severe("Existing formatters include: " + FORMATTERS.keySet());
       throw new ExitException(1);
     }
 
     final var config = new Properties();
-    final var configPath = Paths.get(args[0]).toAbsolutePath();
+    final var configPath = parameters.configurationFile.toAbsolutePath();
     try (var stream = Files.newInputStream(configPath)) {
       config.load(stream);
     }
@@ -91,31 +112,17 @@ public final class CheckVersions
 
     final var librariesToCheck =
       parseLibraries(versionCatalogPath, checkLibraries, checkRepositories);
-    final var statuses =
+    final var results =
       performAllChecks(librariesToCheck);
-    final var ok =
-      displayResults(statuses);
 
-    final var notIgnored =
-      statuses.stream()
-        .filter(s -> !s.library().isIgnored())
-        .count();
+    System.out.println(formatter.format(results));
 
-    if (notIgnored == 0L) {
+    if (results.ignored().size() == results.statuses().size()) {
       LOG.severe("All libraries were ignored. This seems like a mistake!");
       throw new ExitException(1);
     }
 
-    if (ok) {
-      final var message = new StringBuilder(80);
-      message.append(notIgnored);
-      message.append(" libraries were checked (");
-      message.append(statuses.size() - notIgnored);
-      message.append(" were ignored), and all checked libraries were up-to-date");
-      LOG.info(message.toString());
-    } else {
-      LOG.severe(
-        "At least one library is out-of-date or failed the check in some manner.");
+    if (!results.failed().isEmpty()) {
       throw new ExitException(1);
     }
   }
@@ -132,29 +139,7 @@ public final class CheckVersions
     return versionCatalogPath;
   }
 
-  private static boolean displayResults(
-    final List<CheckVersionLibraryStatusType> statuses)
-  {
-    final var failed =
-      statuses.stream()
-        .filter(s -> !s.isOk())
-        .sorted()
-        .collect(Collectors.toList());
-
-    if (!failed.isEmpty()) {
-      final var table =
-        AsciiTable.getTable(failed, Arrays.asList(
-          new Column().header("Group").with(s -> s.library().group()),
-          new Column().header("Artifact").with(s -> s.library().artifact()),
-          new Column().header("Version").with(s -> s.library().version().toString()),
-          new Column().header("Message").with(CheckVersionLibraryStatusType::message)
-        ));
-      System.out.println(table);
-    }
-    return failed.isEmpty();
-  }
-
-  private static ArrayList<CheckVersionLibraryStatusType> performAllChecks(
+  private static CheckVersionResults performAllChecks(
     final Collection<CheckVersionLibrary> librariesToCheck)
   {
     final var client =
@@ -166,7 +151,8 @@ public final class CheckVersions
     for (final var library : librariesToCheck) {
       statuses.add(library.check(client));
     }
-    return statuses;
+
+    return new CheckVersionResults(statuses);
   }
 
   private static ArrayList<CheckVersionLibrary> parseLibraries(
