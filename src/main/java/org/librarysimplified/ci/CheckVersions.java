@@ -5,6 +5,7 @@ import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyException;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.tomlj.Toml;
+import org.tomlj.TomlTable;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -86,19 +87,11 @@ public final class CheckVersions
 
     final Set<String> checkLibraries;
     try (var stream = Files.lines(libraryListFile)) {
-      checkLibraries =
-        stream.filter(line -> !line.startsWith("#"))
-          .filter(line -> !line.isBlank())
-          .map(String::trim)
-          .collect(Collectors.toSet());
+      checkLibraries = nonCommentedLinesOf(stream);
     }
     final Set<String> checkRepositories;
     try (var stream = Files.lines(libraryRepositoryFile)) {
-      checkRepositories =
-        stream.filter(line -> !line.startsWith("#"))
-          .filter(line -> !line.isBlank())
-          .map(String::trim)
-          .collect(Collectors.toSet());
+      checkRepositories = nonCommentedLinesOf(stream);
     }
 
     if (checkRepositories.isEmpty()) {
@@ -125,6 +118,15 @@ public final class CheckVersions
     if (!results.failed().isEmpty()) {
       throw new ExitException(1);
     }
+  }
+
+  private static Set<String> nonCommentedLinesOf(
+    final Stream<String> stream)
+  {
+    return stream.filter(line -> !line.startsWith("#"))
+      .filter(line -> !line.isBlank())
+      .map(String::trim)
+      .collect(Collectors.toSet());
   }
 
   private static Path resolveAgainstConfigPath(
@@ -180,36 +182,15 @@ public final class CheckVersions
 
     final var namesLeftOver = new HashSet<>(checkLibraries);
     for (final var libraryName : libraries.keySet()) {
-      final var module =
-        libraries.getTable(libraryName);
-      final var name =
-        module.getString("module");
-
-      final var versionRef =
-        module.getString("version.ref");
-      final var version =
-        versions.getString(versionRef);
-      final var group =
-        name.substring(0, name.indexOf(':'));
-      final var artifact =
-        name.substring(name.indexOf(':') + 1);
-
-      final boolean shouldIgnore;
-      if (checkLibraries.contains(name)) {
-        namesLeftOver.remove(name);
-        shouldIgnore = false;
-      } else {
-        shouldIgnore = true;
-      }
-
       librariesToCheck.add(
-        new CheckVersionLibrary(
-          group,
-          artifact,
-          new DefaultArtifactVersion(version),
+        parseLibrary(
+          checkLibraries,
           checkRepositories,
-          shouldIgnore
-        ));
+          libraries,
+          versions,
+          namesLeftOver,
+          libraryName)
+      );
     }
 
     if (!namesLeftOver.isEmpty()) {
@@ -219,5 +200,44 @@ public final class CheckVersions
     }
 
     return librariesToCheck;
+  }
+
+  private static CheckVersionLibrary parseLibrary(
+    final Collection<String> checkLibraries,
+    final Set<String> checkRepositories,
+    final TomlTable libraries,
+    final TomlTable versions,
+    final Set<String> namesLeftOver,
+    final String libraryName)
+  {
+    final var module =
+      libraries.getTable(libraryName);
+    final var name =
+      module.getString("module");
+
+    final var versionRef =
+      module.getString("version.ref");
+    final var version =
+      versions.getString(versionRef);
+    final var group =
+      name.substring(0, name.indexOf(':'));
+    final var artifact =
+      name.substring(name.indexOf(':') + 1);
+
+    final boolean shouldIgnore;
+    if (checkLibraries.contains(name)) {
+      namesLeftOver.remove(name);
+      shouldIgnore = false;
+    } else {
+      shouldIgnore = true;
+    }
+
+    return new CheckVersionLibrary(
+      group,
+      artifact,
+      new DefaultArtifactVersion(version),
+      checkRepositories,
+      shouldIgnore
+    );
   }
 }
