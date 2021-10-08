@@ -137,7 +137,7 @@ public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary
         XPathFactory.newInstance()
           .newXPath();
       final XPathExpression expression =
-        xpath.compile("/metadata/versioning/latest");
+        xpath.compile("/metadata/versioning/release");
 
       final var documentBuilders =
         DocumentBuilderFactory.newDefaultInstance();
