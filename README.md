@@ -28,6 +28,7 @@ Android modules.
 * Automatic deployment of Android releases to the [Play Store](https://play.google.com/).
 * Build pull requests safely without access to secrets.
 * Zero-configuration in the common case; add a git submodule and go!
+* Up-to-date checks for dependency versions, if requested
 
 ### Usage
 
@@ -276,3 +277,64 @@ that might be required. For example, most projects that produce APK files will r
 _some_ kind of keystore for APK signing, even if the APK is never deployed. The 
 `.ci-local/credentials-fake.sh` script can be used to set up a temporary keystore that is
 simply discarded at the end of the build.
+
+### Dependency Version Checks
+
+If the file `.ci-local/check-versions.properties` exists, then the project's
+dependency versions will be checked to see if all dependencies are up-to-date.
+If the dependencies are not up-to-date, then the build fails. This check is
+only performed for non-`SNAPSHOT` builds.
+
+The `check-versions.properties` file is a file in [Java properties](https://docs.oracle.com/javase/7/docs/api/java/util/Properties.html)
+format and has the following required fields:
+
+```
+versionCatalogFile:    ../build_libraries.toml
+libraryListFile:       check-libraries.txt
+libraryRepositoryFile: check-repositories.txt
+```
+
+The `versionCatalogFile` property specifies the location of a TOML [version catalog](https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml)
+that contains the coordinates of all dependencies used by the project. The path
+given is relative to the `check-versions.properties` file.
+
+The `libraryListFile` property specifies the location of a file that contains
+the list of artifacts that should be checked. This is used to limit checking
+to a subset of the artifacts declared in the _version catalog_ above. The path
+given is relative to the `check-versions.properties` file.
+
+The `libraryRepositoryFile` property specifies the location of a file that contains
+the list of remote repositories within which artifacts are assumed to exist.
+The repositories will be checked in the order that they appear in the file,
+and the first repository to claim ownership of an artifact will be the one
+used to determine the latest version of an artifact.
+
+An example of these three files is as follows:
+
+`build_libraries.toml`:
+
+```
+[versions]
+androidx_activity = "1.2.3"
+
+[libraries]
+androidx_activity = { module = "androidx.activity:activity", version.ref = "androidx_activity" }
+```
+
+`check-libraries.txt`:
+
+```
+# Blank lines, and lines starting with '#' are ignored.
+
+androidx.activity:activity
+```
+
+`check-repositories.txt`:
+
+```
+# Blank lines, and lines starting with '#' are ignored.
+
+https://repo1.maven.org/maven2/
+https://jcenter.bintray.com/
+https://dl.google.com/dl/android/maven2/
+```

@@ -26,15 +26,23 @@ then
   BUILD_TYPE="normal"
 fi
 
-VERSION_NAME=$(ci-version.sh) || fatal "Could not determine project version"
+#------------------------------------------------------------------------
+# Check dependency versions if requested.
+#
 
-echo "${VERSION_NAME}" | grep -E -- '-SNAPSHOT$'
-if [ $? -eq 0 ]
+if [ -f ".ci-local/check-versions.properties" ]
 then
-  info "version ${VERSION_NAME} is a snapshot, so we won't check dependency versions"
+  VERSION_NAME=$(ci-version.sh) || fatal "Could not determine project version"
+  echo "${VERSION_NAME}" | grep -E -- '-SNAPSHOT$'
+  if [ $? -eq 0 ]
+  then
+    info "version ${VERSION_NAME} is a snapshot, so we won't check dependency versions"
+  else
+    info "version ${VERSION_NAME} is not a snapshot, so we'll check dependency versions now"
+    ci-check-versions.sh || fatal "Dependencies are out of date!"
+  fi
 else
-  info "version ${VERSION_NAME} is not a snapshot, so we'll check dependency versions now"
-  ci-check-versions.sh || fatal "Dependencies are out of date!"
+  info "no .ci-local/check-versions.properties file exists, so we won't check dependency versions"
 fi
 
 #------------------------------------------------------------------------
