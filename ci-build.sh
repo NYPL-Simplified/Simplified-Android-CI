@@ -26,6 +26,17 @@ then
   BUILD_TYPE="normal"
 fi
 
+VERSION_NAME=$(ci-version.sh) || fatal "Could not determine project version"
+
+echo "${VERSION_NAME}" | grep -E -- '-SNAPSHOT$'
+if [ $? -eq 0 ]
+then
+  info "version ${VERSION_NAME} is a snapshot, so we won't check dependency versions"
+else
+  info "version ${VERSION_NAME} is not a snapshot, so we'll check dependency versions now"
+  ci-check-versions.sh || fatal "Dependencies are out of date!"
+fi
+
 #------------------------------------------------------------------------
 # Build the project
 #
