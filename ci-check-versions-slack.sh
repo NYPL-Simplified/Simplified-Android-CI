@@ -28,9 +28,9 @@ info()
 CI_BIN_DIRECTORY=$(realpath .ci) ||
   fatal "could not determine bin directory"
 
-if [ -z "${SLACK_WEBHOOK_URL}" ]
+if [ -z "${SLACK_WEBHOOK}" ]
 then
-  fatal "SLACK_WEBHOOK_URL is not set"
+  fatal "SLACK_WEBHOOK is not set"
 fi
 
 export PATH="${PATH}:${CI_BIN_DIRECTORY}:."
@@ -40,4 +40,4 @@ java -jar "${CI_BIN_DIRECTORY}/ci-tools.jar" \
   --configuration .ci-local/check-versions.properties \
   --formatter slack | tee version-check.json
 
-exec curl -d "@version-check.json" "${SLACK_WEBHOOK_URL}"
+exec curl -d "@version-check.json" "${SLACK_WEBHOOK}"
