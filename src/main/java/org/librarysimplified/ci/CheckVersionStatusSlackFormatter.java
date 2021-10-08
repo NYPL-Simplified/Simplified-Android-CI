@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class CheckVersionStatusSlackFormatter
   implements CheckVersionStatusFormatterType
@@ -79,7 +80,16 @@ public final class CheckVersionStatusSlackFormatter
     fields.add(headerLibrary);
     fields.add(headerStatus);
 
-    for (final var status : failed) {
+    /*
+     * Slack limits fields to ten (with two used for the headers).
+     */
+
+    final var firsts =
+      failed.stream()
+        .limit(4L)
+        .collect(Collectors.toList());
+
+    for (final var status : firsts) {
       final var artifactHolder = mapper.createObjectNode();
       final var statusHolder = mapper.createObjectNode();
 
@@ -107,13 +117,24 @@ public final class CheckVersionStatusSlackFormatter
   }
 
   private static ObjectNode generateErrorHeader(
-    final ObjectMapper mapper)
+    final ObjectMapper mapper,
+    final List<CheckVersionLibraryStatusType> failed)
   {
+    final var message = new StringBuilder(128);
+    if (failed.size() > 4) {
+      message.append(System.lineSeparator());
+      message.append(
+        ":warning:    More than four libraries are out of date; the first four are listed below.");
+      message.append(
+        " Please run `ci-check-versions.sh` locally to see the full list.");
+    } else {
+      message.append(
+        ":warning:    At least one library is out-of-date, or failed the dependency check!");
+    }
+
     final var textSection = mapper.createObjectNode();
     textSection.put("type", "mrkdwn");
-    textSection.put(
-      "text",
-      ":warning:    At least one library is out-of-date, or failed the dependency check!");
+    textSection.put("text", message.toString());
 
     final var section = mapper.createObjectNode();
     section.put("type", "section");
@@ -133,7 +154,7 @@ public final class CheckVersionStatusSlackFormatter
 
       final var failed = results.failed();
       if (!failed.isEmpty()) {
-        blocks.add(generateErrorHeader(mapper));
+        blocks.add(generateErrorHeader(mapper, failed));
         blocks.add(generateErrorTable(mapper, failed));
       } else {
         blocks.add(generateOKHeader(mapper));
