@@ -121,15 +121,18 @@ public final class CheckVersionStatusSlackFormatter
     final List<CheckVersionLibraryStatusType> failed)
   {
     final var message = new StringBuilder(128);
+    message.append(System.lineSeparator());
+    message.append(":warning:    ");
+
     if (failed.size() > 4) {
-      message.append(System.lineSeparator());
+      message.append(failed.size());
       message.append(
-        ":warning:    More than four libraries are out of date; the first four are listed below.");
+        "libraries are out of date or failed; the first four are listed below.");
       message.append(
         " Please run `ci-check-versions.sh` locally to see the full list.");
     } else {
-      message.append(
-        ":warning:    At least one library is out-of-date, or failed the dependency check!");
+      message.append(failed.size());
+      message.append(" libraries are out-of-date, or failed the dependency check!");
     }
 
     final var textSection = mapper.createObjectNode();
