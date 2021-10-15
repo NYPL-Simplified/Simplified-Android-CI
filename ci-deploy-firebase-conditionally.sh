@@ -13,6 +13,14 @@ fatal()
   exit 1
 }
 
+FAILED=0
+
+error()
+{
+  echo "ci-deploy-firebase-conditionally.sh: error: $1" 1>&2
+  FAILED=1
+}
+
 info()
 {
   echo "ci-deploy-firebase-conditionally.sh: info: $1" 1>&2
@@ -27,7 +35,23 @@ export PATH="${PATH}:.ci:."
 if [ -f ".ci-local/deploy-firebase-apps.conf" ]
 then
   FIREBASE_APPLICATIONS=$(egrep -v '^#' ".ci-local/deploy-firebase-apps.conf") ||
-    fatal "could not list firebase applications"
-  ci-deploy-firebase.sh "${FIREBASE_APPLICATIONS}" ||
-    fatal "could not deploy firebase builds"
+    error "could not list Firebase applications"
+
+  for PROJECT in ${FIREBASE_APPLICATIONS}
+  do
+    ci-deploy-firebase-install.sh "${PROJECT}" ||
+      error "could not install Firebase"
+    ci-deploy-firebase.sh "${PROJECT}" ||
+      error "could not deploy Firebase app"
+  done
+else
+  info ".ci-local/deploy-firebase-apps.conf does not exist; will not deploy any Firebase apps"
+fi
+
+#------------------------------------------------------------------------
+# Check if any of the above failed, and give up if they did.
+
+if [ ${FAILED} -eq 1 ]
+then
+  fatal "one or more deployment steps failed"
 fi
