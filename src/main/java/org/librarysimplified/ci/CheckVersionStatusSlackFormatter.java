@@ -127,7 +127,7 @@ public final class CheckVersionStatusSlackFormatter
     if (failed.size() > 4) {
       message.append(failed.size());
       message.append(
-        "libraries are out of date or failed; the first four are listed below.");
+        " libraries are out of date or failed; the first four are listed below.");
       message.append(
         " Please run `ci-check-versions.sh` locally to see the full list.");
     } else {
