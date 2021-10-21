@@ -132,7 +132,8 @@ public final class CheckVersionStatusSlackFormatter
         " Please run `ci-check-versions.sh` locally to see the full list.");
     } else {
       message.append(failed.size());
-      message.append(" libraries are out-of-date, or failed the dependency check!");
+      message.append(
+        " libraries are out-of-date, or failed the dependency check!");
     }
 
     final var textSection = mapper.createObjectNode();

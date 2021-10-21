@@ -1,9 +1,8 @@
 package org.librarysimplified.ci;
 
-import com.io7m.jproperties.JPropertyException;
+import org.librarysimplified.ci.check_commits_since.CheckCommitsSince;
 import org.librarysimplified.ci.check_versions.CheckVersions;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import static java.lang.System.err;
@@ -20,6 +19,7 @@ public final class Main
   {
     err.println("usage:");
     err.println("  check-versions [args]");
+    err.println("  check-commits-since [args]");
   }
 
   private static void configureLogging()
@@ -34,7 +34,7 @@ public final class Main
 
   public static void main(
     final String[] args)
-    throws IOException, JPropertyException
+    throws Exception
   {
     try {
       configureLogging();
@@ -47,6 +47,10 @@ public final class Main
       switch (args[0]) {
         case "check-versions": {
           CheckVersions.main(Arrays.copyOfRange(args, 1, args.length));
+          break;
+        }
+        case "check-commits-since": {
+          CheckCommitsSince.main(Arrays.copyOfRange(args, 1, args.length));
           break;
         }
         default: {
