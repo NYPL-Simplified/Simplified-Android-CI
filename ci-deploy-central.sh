@@ -28,7 +28,7 @@ fi
 # Determine version and whether or not this is a snapshot.
 #
 
-VERSION_NAME=$(ci-version.sh) || fatal "Could not determine project version"
+VERSION_NAME=$(ci-version.sh .) || fatal "Could not determine project version"
 VERSION_TYPE=none
 
 echo "${VERSION_NAME}" | grep -E -- '-SNAPSHOT$'
