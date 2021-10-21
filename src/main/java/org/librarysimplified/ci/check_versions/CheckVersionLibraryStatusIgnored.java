@@ -1,21 +1,17 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 import java.util.Objects;
 
-public final class CheckVersionLibraryStatusError
+public final class CheckVersionLibraryStatusIgnored
   implements CheckVersionLibraryStatusType
 {
   private final CheckVersionLibrary library;
-  private final String message;
 
-  public CheckVersionLibraryStatusError(
-    final CheckVersionLibrary library,
-    final String message)
+  public CheckVersionLibraryStatusIgnored(
+    final CheckVersionLibrary library)
   {
     this.library =
       Objects.requireNonNull(library, "library");
-    this.message =
-      Objects.requireNonNull(message, "message");
   }
 
   @Override
@@ -27,12 +23,12 @@ public final class CheckVersionLibraryStatusError
   @Override
   public boolean isOk()
   {
-    return false;
+    return true;
   }
 
   @Override
   public String message()
   {
-    return "ERROR: " + this.message;
+    return "Ignored (not included in library list file)";
   }
 }

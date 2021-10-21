@@ -4,7 +4,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.librarysimplified.ci.CheckVersions;
+import org.librarysimplified.ci.check_versions.CheckVersions;
 import org.librarysimplified.ci.ExitException;
 import org.mockserver.integration.ClientAndServer;
 

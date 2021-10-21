@@ -1,4 +1,4 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 import java.util.Objects;
 

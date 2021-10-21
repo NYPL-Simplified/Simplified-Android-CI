@@ -1,9 +1,10 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 import com.beust.jcommander.JCommander;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyException;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.librarysimplified.ci.ExitException;
 import org.tomlj.Toml;
 import org.tomlj.TomlTable;
 

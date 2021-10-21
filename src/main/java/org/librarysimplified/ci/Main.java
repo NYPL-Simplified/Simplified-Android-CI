@@ -1,6 +1,7 @@
 package org.librarysimplified.ci;
 
 import com.io7m.jproperties.JPropertyException;
+import org.librarysimplified.ci.check_versions.CheckVersions;
 
 import java.io.IOException;
 import java.util.Arrays;

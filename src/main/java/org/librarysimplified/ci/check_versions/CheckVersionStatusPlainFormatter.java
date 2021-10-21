@@ -1,4 +1,4 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;

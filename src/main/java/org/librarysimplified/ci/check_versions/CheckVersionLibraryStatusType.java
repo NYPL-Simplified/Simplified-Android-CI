@@ -1,4 +1,4 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 /**
  * The status of a check for a given library.

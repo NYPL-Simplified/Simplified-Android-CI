@@ -1,4 +1,4 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 /**
  * The type of formatters that produce human-readable output for library

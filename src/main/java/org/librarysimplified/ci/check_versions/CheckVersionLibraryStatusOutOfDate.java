@@ -1,4 +1,4 @@
-package org.librarysimplified.ci;
+package org.librarysimplified.ci.check_versions;
 
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
