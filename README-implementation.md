@@ -156,11 +156,6 @@ upload to the _alpha_ (closed testing) track. This requires a developer to
 go into the [Play Console](https://play.google.com/console) and manually
 click "Deploy To Production". This is node `S5` on the flow chart.
 
-Deploying an application to the Play Store requires including _release notes_.
-The current applications use [changelog](https://www.io7m.com/software/changelog/)
-to maintain a `README-CHANGES.xml` file in each project. The build system
-automatically generates release notes for the store from this file.
-
 Deploying an application to the Play Store using Fastlane requires a private
 key in JSON format, obtained from the Play Console. It also requires API
 Access to be enabled in the Play Console. Only the owner of the Play Store
@@ -186,6 +181,6 @@ care about whether a build is a snapshot version, a tagged commit, or something
 else. This is node `S6` on the flow chart.
 
 Deploying an application to Firebase requires including _release notes_.
-The current applications use [changelog](https://www.io7m.com/software/changelog/)
-to maintain a `README-CHANGES.xml` file in each project. The build system
-automatically generates release notes from this file.
+The build system assumes a file `README-CHANGES.txt` exists in the root
+of the project, and the contents of this file are inserted into release notes
+verbatim.

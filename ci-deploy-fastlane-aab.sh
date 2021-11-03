@@ -56,8 +56,9 @@ CI_CHANGELOG_OUTPUT_FILE="${CI_CHANGELOG_OUTPUT_DIRECTORY}/default.txt"
 mkdir -p ${CI_CHANGELOG_OUTPUT_DIRECTORY} ||
   fatal "could not create directory"
 
-ci-changelog.sh "${START_DIRECTORY}/changelog.jar" "${START_DIRECTORY}/README-CHANGES.xml" > "${CI_CHANGELOG_OUTPUT_FILE}" ||
-  fatal "could not generate changelog"
+(cat <<EOF
+Release notes to be completed by the release handler.
+) > "${CI_CHANGELOG_OUTPUT_FILE}"
 
 bundle exec fastlane supply --aab "${CI_FASTLANE_AAB}" --track alpha < /dev/null ||
   fatal "could not upload AAB"

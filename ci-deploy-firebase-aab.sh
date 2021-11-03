@@ -67,12 +67,9 @@ then
   fatal "attempted to submit a zero-size AAB file"
 fi
 
-ci-changelog.sh "${START_DIRECTORY}/changelog.jar" "${START_DIRECTORY}/README-CHANGES.xml" > changes.txt ||
-  fatal "could not generate changelog"
-
 exec "${CI_FIREBASE}" appdistribution:distribute \
   --token "${CI_FIREBASE_TOKEN}" \
-  --release-notes-file changes.txt \
+  --release-notes-file "${START_DIRECTORY}/README-CHANGES.txt" \
   --app "${CI_FIREBASE_APP_ID}" \
   --groups "${CI_FIREBASE_GROUPS}" \
   "${CI_FIREBASE_AAB}"
