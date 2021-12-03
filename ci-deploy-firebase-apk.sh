@@ -67,6 +67,9 @@ then
   fatal "attempted to submit a zero-size APK file"
 fi
 
+ci-git-commit.sh "${START_DIRECTORY}/.git" > "${START_DIRECTORY}/README-CHANGES.txt"
+echo "..." >> "${START_DIRECTORY}/README-CHANGES.txt"
+
 exec "${CI_FIREBASE}" appdistribution:distribute \
   --token "${CI_FIREBASE_TOKEN}" \
   --release-notes-file "${START_DIRECTORY}/README-CHANGES.txt" \
