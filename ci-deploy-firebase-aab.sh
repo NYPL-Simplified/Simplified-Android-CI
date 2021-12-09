@@ -72,7 +72,6 @@ VERSION_AND_TYPE=$(ci-version-and-type.sh gradle.properties) ||
 VERSION_TYPE=$(echo "${VERSION_AND_TYPE}" | awk '{print $1}') ||
   fatal "could not determine version type"
 
-info "${PROPERTY_FILE} specifies ${VERSION_AND_TYPE}"
 case "${VERSION_TYPE}" in
   release)
     # Use the existing README-CHANGES.txt

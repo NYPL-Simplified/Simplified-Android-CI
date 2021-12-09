@@ -32,9 +32,11 @@ VERSION_NAME=$(echo "${VERSION_TEXT}" | sed 's/VERSION_NAME=//g') ||
   fatalQuiet "${FILE} did not provide a VERSION_NAME"
 
 VERSION_SNAP=$(echo "${VERSION_NAME}" | grep -E -o -- '-SNAPSHOT$')
-if [ "${VERSION_SNAP}" == '-SNAPSHOT' ]
-then
-  echo "snapshot ${VERSION_NAME}"
-else
-  echo "release ${VERSION_NAME}"
-fi
+case "${VERSION_SNAP}" in
+  -SNAPSHOT)
+    echo "snapshot ${VERSION_NAME}"
+    ;;
+  *)
+    echo "release ${VERSION_NAME}"
+    ;;
+esac
