@@ -67,8 +67,7 @@ then
   fatal "attempted to submit a zero-size AAB file"
 fi
 
-PROPERTY_FILE="${PROJECT}/gradle.properties"
-VERSION_AND_TYPE=$(ci-version-and-type.sh "${PROPERTY_FILE}") ||
+VERSION_AND_TYPE=$(ci-version-and-type.sh gradle.properties) ||
   fatal "could not determine version and type"
 VERSION_TYPE=$(echo "${VERSION_AND_TYPE}" | awk '{print $1}') ||
   fatal "could not determine version type"
