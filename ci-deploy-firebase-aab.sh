@@ -67,8 +67,25 @@ then
   fatal "attempted to submit a zero-size AAB file"
 fi
 
-ci-git-commit.sh "${START_DIRECTORY}/.git" > "${START_DIRECTORY}/README-CHANGES.txt"
-echo "..." >> "${START_DIRECTORY}/README-CHANGES.txt"
+PROPERTY_FILE="${PROJECT}/gradle.properties"
+VERSION_AND_TYPE=$(ci-version-and-type.sh "${PROPERTY_FILE}") ||
+  fatal "could not determine version and type"
+VERSION_TYPE=$(echo "${VERSION_AND_TYPE}" | awk '{print $1}') ||
+  fatal "could not determine version type"
+
+info "${PROPERTY_FILE} specifies ${VERSION_AND_TYPE}"
+case "${VERSION_TYPE}" in
+  release)
+    # Use the existing README-CHANGES.txt
+    ;;
+  snapshot)
+    ci-git-commit.sh "${START_DIRECTORY}/.git" > "${START_DIRECTORY}/README-CHANGES.txt"
+    echo "..." >> "${START_DIRECTORY}/README-CHANGES.txt"
+    ;;
+  *)
+    fatal "unrecognized release type: ${VERSION_TYPE}"
+    ;;
+esac
 
 exec "${CI_FIREBASE}" appdistribution:distribute \
   --token "${CI_FIREBASE_TOKEN}" \
