@@ -121,6 +121,7 @@ public final class CheckVersionLibrary implements Comparable<CheckVersionLibrary
         if (message == null) {
           message = e.getClass().getSimpleName();
         }
+        message = String.format("%s %s", baseServer, message);
         return new CheckVersionLibraryStatusError(this, message);
       }
     }
