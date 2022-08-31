@@ -41,7 +41,7 @@ ci-check-versions-conditionally.sh ||
 
 info "Executing build in '${BUILD_TYPE}' mode"
 
-JVM_ARGUMENTS="-Xmx8g -Xms2g -XX:+PrintGC -XX:+PrintGCDetails -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+JVM_ARGUMENTS="-Xmx2g -XX:+PrintGC -XX:+PrintGCDetails -XX:MaxMetaspaceSize=256m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 info "Gradle JVM arguments: ${JVM_ARGUMENTS}"
 
@@ -59,6 +59,7 @@ case ${BUILD_TYPE} in
     ./gradlew \
       -Porg.librarysimplified.no_signing=true \
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
+      -Dorg.gradle.daemon=false \
       -Dorg.gradle.parallel=false \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
       assemble test verifySemanticVersioning || fatal "could not build"
