@@ -41,7 +41,7 @@ ci-check-versions-conditionally.sh ||
 
 info "Executing build in '${BUILD_TYPE}' mode"
 
-JVM_ARGUMENTS="-Xmx6g -Xms2g -XX:+PrintGC -XX:+PrintGCDetails -XX:MaxMetaspaceSize=4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+JVM_ARGUMENTS="-Xmx8g -Xms2g -XX:+PrintGC -XX:+PrintGCDetails -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 info "Gradle JVM arguments: ${JVM_ARGUMENTS}"
 
