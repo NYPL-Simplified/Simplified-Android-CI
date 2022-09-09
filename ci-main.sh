@@ -45,6 +45,15 @@ case ${BUILD_TYPE} in
     ci-build.sh pull-request || fatal "Could not build"
     ;;
 
+  pull-request-v2)
+    info "Building in pull-request-v2 mode"
+    info "Credentials will not be used"
+    info "Builds will not be deployed"
+
+    ci-credentials-fake.sh || fatal "Could not set up fake credentials"
+    ci-build.sh pull-request-v2 || fatal "Could not build"
+    ;;
+
   normal)
     info "Building in normal mode"
     info "Credentials will be used"
