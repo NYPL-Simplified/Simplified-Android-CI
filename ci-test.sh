@@ -37,7 +37,7 @@ case ${BUILD_TYPE} in
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
       -Dorg.gradle.parallel=true \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      testDebug -x --rerun-tasks :simplified-tests:testDebug || fatal "could not test"
+      --rerun-tasks testDebug -x :simplified-tests:testDebug || fatal "could not test"
     ;;
 
   release)
