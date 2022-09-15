@@ -38,10 +38,8 @@ case ${BUILD_TYPE} in
 
   pull-request)
     info "Building in pull-request mode"
-    info "Credentials will not be used"
     info "Builds will not be deployed"
 
-    ci-credentials-fake.sh || fatal "Could not set up fake credentials"
     ci-build.sh pull-request || fatal "Could not build"
     ;;
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------
-# A script to execute a build of the given type.
+# A script to execute tests in different manners
 #
 
 #------------------------------------------------------------------------
@@ -9,13 +9,13 @@
 
 fatal()
 {
-  echo "ci-build.sh: fatal: $1" 1>&2
+  echo "ci-test.sh: fatal: $1" 1>&2
   exit 1
 }
 
 info()
 {
-  echo "ci-build.sh: info: $1" 1>&2
+  echo "ci-test.sh: info: $1" 1>&2
 }
 
 BUILD_TYPE="$1"
@@ -23,37 +23,29 @@ shift
 
 if [ -z "${BUILD_TYPE}" ]
 then
-  BUILD_TYPE="normal"
+  BUILD_TYPE="pull-request"
 fi
-
-export PATH="${PATH}:.ci:."
-
-#------------------------------------------------------------------------
-# Build the project
-#
-
-info "Executing build in '${BUILD_TYPE}' mode"
 
 JVM_ARGUMENTS="-Xmx2g -XX:+PrintGC -XX:+PrintGCDetails -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 info "Gradle JVM arguments: ${JVM_ARGUMENTS}"
 
 case ${BUILD_TYPE} in
-  normal)
-    ./gradlew \
-      -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
-      -Dorg.gradle.daemon=false \
-      -Dorg.gradle.parallel=false \
-      -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assemble test verifySemanticVersioning || fatal "could not build"
-    ;;
-
   pull-request)
     ./gradlew \
       -Porg.librarysimplified.no_signing=true \
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
-      -Dorg.gradle.parallel=false \
+      -Dorg.gradle.parallel=true \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assembleDebug || fatal "could not build"
+      testDebug -x :simplified-tests:testDebug || fatal "could not test"
+    ;;
+
+  release)
+    ./gradlew \
+      -Porg.librarysimplified.no_signing=true \
+      -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
+      -Dorg.gradle.parallel=true \
+      -Dorg.gradle.internal.publish.checksums.insecure=true \
+      test || fatal "could not test"
     ;;
 esac
