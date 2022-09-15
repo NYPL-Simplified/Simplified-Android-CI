@@ -35,7 +35,7 @@ case ${BUILD_TYPE} in
     ./gradlew \
       -Porg.librarysimplified.no_signing=true \
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
-      -Dorg.gradle.parallel=true \
+      -Dorg.gradle.parallel=false \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
       testDebug -x :simplified-tests:testDebug || fatal "could not test"
     ;;
