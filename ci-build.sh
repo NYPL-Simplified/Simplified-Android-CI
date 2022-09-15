@@ -61,15 +61,6 @@ case ${BUILD_TYPE} in
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
       -Dorg.gradle.parallel=true \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assemble test verifySemanticVersioning || fatal "could not build"
+      assembleDebug || fatal "could not build"
     ;;
-
-  pull-request-v2)
-      ./gradlew \
-        -Porg.librarysimplified.no_signing=true \
-        -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
-        -Dorg.gradle.parallel=true \
-        -Dorg.gradle.internal.publish.checksums.insecure=true \
-        assembleDebug || fatal "could not build"
-      ;;
 esac
