@@ -29,13 +29,6 @@ fi
 export PATH="${PATH}:.ci:."
 
 #------------------------------------------------------------------------
-# Check dependency versions if requested.
-#
-
-ci-check-versions-conditionally.sh ||
-  fatal "dependency checks failed"
-
-#------------------------------------------------------------------------
 # Build the project
 #
 
