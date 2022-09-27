@@ -42,7 +42,6 @@ case ${BUILD_TYPE} in
   normal)
     ./gradlew \
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
-      -Dorg.gradle.daemon=false \
       -Dorg.gradle.parallel=true \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
       assembleRelease || fatal "could not build"
