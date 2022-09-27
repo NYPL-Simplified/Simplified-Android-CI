@@ -43,9 +43,9 @@ case ${BUILD_TYPE} in
     ./gradlew \
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
       -Dorg.gradle.daemon=false \
-      -Dorg.gradle.parallel=false \
+      -Dorg.gradle.parallel=true \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assemble test verifySemanticVersioning || fatal "could not build"
+      assembleRelease || fatal "could not build"
     ;;
 
   pull-request)
