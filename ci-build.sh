@@ -44,7 +44,7 @@ case ${BUILD_TYPE} in
       -Dorg.gradle.jvmargs="${JVM_ARGUMENTS}" \
       -Dorg.gradle.parallel=true \
       -Dorg.gradle.internal.publish.checksums.insecure=true \
-      assembleRelease || fatal "could not build"
+      assembleDebug || fatal "could not build"
     ;;
 
   pull-request)
